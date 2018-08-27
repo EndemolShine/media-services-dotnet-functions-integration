@@ -5,6 +5,7 @@ Input:
 {
     "assetId" : "the Id of the asset where the file must be copied",
     "fileName" : "filename.mp4", // use fileName if one file, or FileNames if several files
+    "fileNameDestinationBlob" : "filenamewithoutfolder", // JA August 22 - Added this value for cases in which a folder is used as a source folder
     "fileNames" : [ "filename.mp4" , "filename2.mp4"],
     "sourceStorageAccountName" : "",
     "sourceStorageAccountKey": "",
@@ -135,9 +136,17 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log, Mi
         if (data.fileName != null)
         {
             string fileName = (string)data.fileName;
-
+            string fileNameDestinationBlob;
+            
+            if (data.fileNameDestinationBlob != null)
+            {
+                fileNameDestinationBlob = (string)data.fileNameDestinationBlob;
+            } else {
+                fileNameDestinationBlob = fileName;
+            }
+            
             CloudBlob sourceBlob = sourceBlobContainer.GetBlockBlobReference(fileName);
-            CloudBlob destinationBlob = destinationBlobContainer.GetBlockBlobReference(fileName);
+            CloudBlob destinationBlob = destinationBlobContainer.GetBlockBlobReference(fileNameDestinationBlob);
 
             if (destinationBlobContainer.CreateIfNotExists())
             {
